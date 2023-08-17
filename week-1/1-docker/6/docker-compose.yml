@@ -1,0 +1,20 @@
+services:
+  pg_database:
+    image:  postgres:13
+    environment:
+      POSTGRES_USER: "tahir"
+      POSTGRES_PASSWORD: "tahir"
+      POSTGRES_DB: "ny_taxi"
+    ports:
+      - "5432:5432"
+    volumes:
+      - /home/tahir/workspace/data_eng_datatalks/week-1/1-docker/3/ny_data_taxi:/var/lib/postgresql/data
+  pg_admin:
+    depends_on:
+      - pg_database
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "tahir@mail.com"
+      PGADMIN_DEFAULT_PASSWORD: "tahir"
+    ports:
+      - "8080:80"

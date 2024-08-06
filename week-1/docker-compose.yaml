@@ -1,0 +1,31 @@
+services:
+  database:
+    image: "postgres:14"
+    env_file:
+      - "database.env"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      retries: 2
+      interval: 5s
+      timeout: 5s
+  etl_pipeline:
+    image: etl:v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - "etl.env"
+    depends_on:
+      database:
+        condition: service_healthy
+  # homework:
+  #   build:
+  #     context: .
+  #     dockerfile: homework-dockerfile
+  #   env_file:
+  #     - "etl.env"
+  #   depends_on:
+  #     etl_pipeline:
+  #       condition: service_completed_successfully

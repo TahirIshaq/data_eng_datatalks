@@ -1,0 +1,5 @@
+apache-airflow-providers-amazon
+psycopg2-binary
+pyarrow
+pandas
+SQLAlchemy

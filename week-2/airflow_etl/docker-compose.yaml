@@ -1,0 +1,98 @@
+services:
+  # If volumes are going to be destroyed along with containers, should they even be created?
+  # docker compose -f docker-compose.yaml up
+  # Destroy/remove containers, images and volumes
+  # docker compose -f docker-compose.yaml down -v --rmi all
+  s3:
+    image: minio/minio:RELEASE.2024-08-03T04-33-23Z
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "admin12345"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+
+  database:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: demo_user
+      POSTGRES_PASSWORD: demo_pass
+      POSTGRES_DB: demo_db
+    volumes:
+      - postgres-demo-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "demo_user", "-d", "demo_db"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  scheduler:
+    build: .
+    command: scheduler
+    restart: on-failure
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./scripts:/opt/airflow/scripts
+      - ./.aws/:~/.aws:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+
+  webserver:
+    build: .
+    command: ./scripts/entrypoint.sh
+    restart: on-failure
+    depends_on:
+      - postgres
+      - scheduler
+    env_file:
+      - .env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./.aws/:~/.aws:ro
+      - ./scripts:/opt/airflow/scripts
+
+    user: "${AIRFLOW_UID:-50000}:0"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+volumes:
+  - postgres-db-volume:
+  - postgres-demo-db-volume:

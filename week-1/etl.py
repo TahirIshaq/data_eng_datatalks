@@ -27,7 +27,7 @@ def get_df_dtypes(name):
 	mixtype_cols = None
 	if "green" in name:
 		date_cols = dataset_col_dtypes.green_taxi_datetime
-		mixtype_cols = dataset_col_dtypes.green_taxi_data_types_test
+		mixtype_cols = dataset_col_dtypes.green_taxi_data_types
 	elif "yellow" in name:
 		date_cols = dataset_col_dtypes.yellow_taxi_data_types
 		mixtype_cols = dataset_col_dtypes.yellow_taxi_datetime

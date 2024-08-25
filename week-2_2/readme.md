@@ -26,3 +26,5 @@ When calling an external(from another file) python function, I was unable to pas
 https://stackoverflow.com/questions/52541911/keyerror-ti-in-apache-airflow-xcom
 
 To upload the file
+
+The data type of column `lpep_pickup_date` is casted as `TEXT` instead of `DATE`. However, the data types remains DATE after it gets loaded. Unsure about the reason.

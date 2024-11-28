@@ -1,0 +1,12 @@
+transform_data:
+  outputs:
+    dev:
+      dbname: dwh_db
+      host: dwh
+      pass: dwh_pass
+      port: 5432
+      schema: bronze
+      threads: 1
+      type: postgres
+      user: dwh_user
+  target: dev

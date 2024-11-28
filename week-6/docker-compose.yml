@@ -1,0 +1,41 @@
+# 1st just create a single broker kafka cluster with a single producer and consumer.
+# 2nd Use schema registry with kafka and test it
+# 3rd Also include control center
+
+x-common-env: &common-env
+  KAFKA_CONTROLLER_LISTNER_NAMES: CONTROLLER
+  KAFKA_LISTNER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL_PLAINTEXT,EXTERNAL:PLAINTEXT'
+  KAFKA_INTER_BROKER_LISTNER_NAME: INTERNAL
+  KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker1:29093'
+  KAFKA_PROCESS_ROLES: 'broker,controller'
+  KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+  CLUSTER_ID: 'ciWo7IWazngRcmPES6q5A=='
+  KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+  KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+  CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+  CONFLUENT_METRICS_ENABLE: 'true'
+  CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+
+x-common-healthcheck: &common-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 5
+
+services:
+  broker1:
+    image: confluentinc/cp-server
+    container_name: broker1
+    hostname: broker1
+    ports:
+      - "9092:9092"
+    environment:
+      <<: *common-env
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTNERS: 'INTERNAL://broker1:29092,CONTROLLER://broker1:29093,EXTERNAL://0.0.0.9092'
+      KAFKA_ADVERTISED_LISTNERS: 'INTERNAL://broker1:29092,EXTERNAL://localhost:9092'
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker1:29092
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "bash", "-c", "echo 'ruok' | nc localhost 9092"]

@@ -1,0 +1,9 @@
+services:
+  pyspark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pyspark_jupyterlab:v1
+    container_name: pyspark
+    ports:
+      - "8888:8888"

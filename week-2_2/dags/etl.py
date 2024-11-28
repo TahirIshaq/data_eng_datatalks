@@ -2,7 +2,11 @@ import os
 from airflow import DAG
 import user_funcs.ny_taxi as ny_taxi
 from airflow.utils.dates import days_ago
+<<<<<<< HEAD
 from airflow.operators.python import PythonOperator
+=======
+from airflow.operators.python import PythonOperator, PythonVirtualenvOperator, is_venv_installed
+>>>>>>> fbd3b5b (etl pipeline with s3 and postgres)
 from airflow.providers.amazon.aws.operators.s3 import S3CreateBucketOperator
 
 BASE_PATH = os.getenv("HOME", "/home/airflow")
@@ -38,11 +42,18 @@ default_args = {
 with DAG(
 	dag_id = "hello",
 	default_args = default_args,
+<<<<<<< HEAD
 	# schedule_interval = "@once",
     schedule_interval = None,
 	catchup = False,
 	max_active_runs = 1,
 	tags = ["etl"]
+=======
+	schedule_interval = "@once",
+	catchup = False,
+	max_active_runs = 1,
+	tags = ["hello"]
+>>>>>>> fbd3b5b (etl pipeline with s3 and postgres)
 ) as dag:
     download_data_from_url = PythonOperator(
         task_id = DOWNLOAD_DATA_TASK_ID,
@@ -68,6 +79,15 @@ with DAG(
         python_callable = ny_taxi.upload_s3,
         op_kwargs = {"read_key": TRANSFORM_DATA_KEY, "task_ids": TRANSFORM_DATA_TASK_ID, "bucket_name": BUCKET_NAME, "table_name": TABLE_NAME}
     )
+<<<<<<< HEAD
+=======
+    # upload_to_dwh = PythonVirtualenvOperator(
+        # task_id = UPLOAD_TO_DWH_TASK_ID,
+        # python_callable = ny_taxi.upload_dwh_alt,
+        # requirements=["SQLAlchemy~=2.0.31"],
+        # op_kwargs = {"read_key": TRANSFORM_DATA_KEY, "table_name": TABLE_NAME}
+    # )
+>>>>>>> fbd3b5b (etl pipeline with s3 and postgres)
     upload_to_dwh = PythonOperator(
         task_id = UPLOAD_TO_DWH_TASK_ID,
         python_callable = ny_taxi.upload_dwh,
@@ -80,4 +100,11 @@ with DAG(
     #     dest_bucket="b1-test",
     #     replace=True,
     # )
+<<<<<<< HEAD
     download_data_from_url >> load_data >> transform_data >> create_bucket >> [upload_to_s3, upload_to_dwh]
+=======
+    # create_sample_file >> create_bucket >> create_local_to_s3_job
+    # download_data_from_url >> load_data >> transform_data >> create_bucket >> [upload_to_s3, upload_to_dwh]
+    download_data_from_url >> load_data >> transform_data >> create_bucket >> [upload_to_s3, upload_to_dwh]
+    # upload_to_dwh
+>>>>>>> fbd3b5b (etl pipeline with s3 and postgres)

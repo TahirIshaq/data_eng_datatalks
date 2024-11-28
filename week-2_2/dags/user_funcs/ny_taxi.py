@@ -83,7 +83,10 @@ def transform_data(dir_path, read_key, write_key, task_ids, **kwargs):
     df = df[df["trip_distance"] > 0]
     df = df[df["vendor_id"].isin(df["vendor_id"].unique())]
     df["lpep_pickup_date"] = df["lpep_pickup_datetime"].dt.date
+<<<<<<< HEAD
     print(pd.io.sql.get_schema(df, name="schema_test"))
+=======
+>>>>>>> fbd3b5b (etl pipeline with s3 and postgres)
     df_name = f"{dir_path}/transformed_dataset.parquet"
     df.to_parquet(df_name)
     os.environ[write_key] = df_name
@@ -94,9 +97,15 @@ def upload_dwh(read_key, task_ids, table_name, **kwargs):
     """Upload pd.df data to dwh"""
     dataset = kwargs["ti"].xcom_pull(key=read_key, task_ids=task_ids)
     df = pd.read_parquet(dataset)
+<<<<<<< HEAD
     print(pd.io.sql.get_schema(df, name="schema_test"))
     username = os.getenv("DWH_USERNAME")
     password = os.getenv("DWH_PASSWORD")
+=======
+    username = os.getenv("DWH_USERNAME")
+    password = os.getenv("DWH_PASSWORD")
+    # password = "dwh_pass"
+>>>>>>> fbd3b5b (etl pipeline with s3 and postgres)
     host = os.getenv("DWH_HOST")
     port = os.getenv("DWH_PORT")
     db_name = os.getenv("DWH_DB_NAME")
